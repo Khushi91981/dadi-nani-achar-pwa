@@ -9,7 +9,7 @@ const ASSETS = [
   "/public/expenses.html",
   "/public/reports.html",
   "/public/manifest.json",
-  "/src/css/style.css",
+  "src/css/style.css",
 ];
 
 // Install
