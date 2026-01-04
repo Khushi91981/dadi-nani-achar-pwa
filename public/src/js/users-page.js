@@ -1,5 +1,5 @@
-import { logout } from "/auth.js";
-import { createManager, getUsers, updateUser } from "/users.js";
+import { logout } from "./src/js/auth.js";
+import { createManager, getUsers, updateUser } from "./src/js/users.js";
 
 /* ELEMENTS */
 const usersTable = document.getElementById("usersTable");

@@ -1,5 +1,5 @@
-import { logout } from "/auth.js";
-import { requireAuth } from "/auth-guard.js";
+import { logout } from "./src/js/auth.js";
+import { requireAuth } from "./src/js/auth-guard.js";
 
 requireAuth((user) => {
   console.log("Authenticated user:", user);

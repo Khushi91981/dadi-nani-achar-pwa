@@ -1,4 +1,4 @@
-import { db } from "/firebase.js";
+import { db } from "./src/js/firebase.js";
 import {
   collection,
   addDoc,
@@ -8,7 +8,7 @@ import {
   doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-import { logout } from "/auth.js";
+import { logout } from "./src/js/auth.js";
 
 /* ======================
    LOGOUT
