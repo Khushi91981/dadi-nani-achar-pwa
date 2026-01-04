@@ -1,4 +1,4 @@
-import { db } from "./src/js/firebase.js";
+import { db } from "./firebase.js";
 import {
   collection,
   addDoc,
@@ -9,7 +9,7 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-import { logout } from "./src/js/auth.js";
+import { logout } from "./auth.js";
 
 /* ======================
    HELPERS

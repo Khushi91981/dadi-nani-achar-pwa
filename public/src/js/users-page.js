@@ -1,4 +1,4 @@
-import { logout } from "./src/js/auth.js";
+import { logout } from "./auth.js";
 import { createManager, getUsers, updateUser } from "./src/js/users.js";
 
 /* ELEMENTS */
