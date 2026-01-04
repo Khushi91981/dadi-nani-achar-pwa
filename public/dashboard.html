@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Dashboard – दादी–नानी अचार</title>
+<!-- common-head.html -->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="/src/css/style.css" />
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#7b0000" />
+
+</head>
+
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2>दादी–नानी अचार</h2>
+
+    <nav>
+      <a href="dashboard.html">🏠 Dashboard</a>
+      <a href="users.html" id="usersLink">👤 Users</a>
+      <a href="orders.html">📦 Orders</a>
+      <a href="expenses.html">💸 Expenses</a>
+      <a href="reports.html">📊 Reports</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HEADER -->
+    <div class="page-header">
+      <div>
+        <h2 id="welcomeText">Hello 👋</h2>
+        <p class="role-text" id="roleText"></p>
+      </div>
+
+      <button id="logoutBtn" class="btn-outline">Logout</button>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="card">
+      <h3>Welcome</h3>
+      <p>Select a section from the sidebar to continue.</p>
+    </div>
+
+  </main>
+</div>
+
+<!-- AUTH GUARD -->
+<script type="module">
+  import { requireAuth } from "/src/js/auth-guard.js";
+
+  requireAuth((user) => {
+
+    // Safe fallback for name
+    const name = user.name || user.email || "User";
+
+    document.getElementById("welcomeText").innerText =
+      `Hello, ${name} 👋`;
+
+    document.getElementById("roleText").innerText =
+      `Role: ${user.role}`;
+
+    // Hide Users tab for non-admin
+    if (user.role !== "admin") {
+      const usersLink = document.getElementById("usersLink");
+      if (usersLink) usersLink.style.display = "none";
+    }
+
+    console.log("Authenticated user:", user);
+  });
+</script>
+
+<!-- LOGOUT -->
+<script type="module" src="/src/js/layout.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js")
+        .then(() => console.log("PWA Service Worker registered"))
+        .catch(err => console.error("SW error", err));
+    });
+  }
+</script>
+
+
+</body>
+</html>

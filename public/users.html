@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Users – दादी–नानी अचार</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/src/css/style.css">
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7b0000">
+
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2>दादी–नानी अचार</h2>
+
+    <nav>
+      <a href="dashboard.html">🏠 Dashboard</a>
+      <a href="users.html" id="usersLink">👤 Users</a>
+      <a href="orders.html">📦 Orders</a>
+      <a href="expenses.html">💸 Expenses</a>
+      <a href="reports.html">📊 Reports</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- HEADER -->
+    <div class="page-header">
+      <div>
+        <h2 id="pageTitle">Manage Users</h2>
+        <p class="role-text">Create & manage managers</p>
+      </div>
+
+      <button id="logoutBtn" class="btn-outline">Logout</button>
+    </div>
+
+    <!-- CREATE MANAGER -->
+    <div class="card">
+      <h3>Create Manager</h3>
+
+      <div class="form-grid form-grid-4">
+        <input id="name" placeholder="Full Name">
+        <input id="email" placeholder="Email">
+        <input id="password" type="password" placeholder="Password">
+        <button id="createUserBtn" class="btn">Create Manager</button>
+      </div>
+    </div>
+
+    <!-- USERS LIST -->
+    <div class="card">
+      <h3>Users List</h3>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th class="text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody id="usersTable"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="editModal" class="modal hidden">
+  <div class="modal-box">
+    <h3>Edit User</h3>
+
+    <input id="editName" placeholder="Name">
+    <input id="editEmail" placeholder="Email" disabled>
+    <input id="editPassword" type="password" placeholder="New Password (optional)">
+
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn" onclick="saveUser()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { auth, db } from "/src/js/firebase.js";
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  createUserWithEmailAndPassword,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+/* ======================
+   AUTH CHECK
+====================== */
+auth.onAuthStateChanged(async user => {
+  if (!user) {
+    location.href = "index.html";
+    return;
+  }
+
+  const snap = await getDoc(doc(db, "users", user.uid));
+  if (!snap.exists()) return logout();
+
+  const currentUser = snap.data();
+
+  // ❌ Manager not allowed
+  if (currentUser.role !== "admin") {
+    alert("Access denied");
+    location.href = "dashboard.html";
+    return;
+  }
+
+  loadUsers();
+});
+
+/* ======================
+   LOGOUT
+====================== */
+const logoutBtn = document.getElementById("logoutBtn");
+logoutBtn.onclick = async () => {
+  await signOut(auth);
+  location.href = "index.html";
+};
+
+/* ======================
+   CREATE MANAGER
+====================== */
+const createBtn = document.getElementById("createUserBtn");
+
+createBtn.onclick = async () => {
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  if (!name || !email || !password) {
+    return alert("All fields required");
+  }
+
+  const cred = await createUserWithEmailAndPassword(auth, email, password);
+
+  await setDoc(doc(db, "users", cred.user.uid), {
+    name,
+    email,
+    role: "manager",
+    created_at: new Date()
+  });
+
+  alert("Manager created");
+  loadUsers();
+};
+
+/* ======================
+   LOAD USERS
+====================== */
+async function loadUsers() {
+  const usersTable = document.getElementById("usersTable");
+  usersTable.innerHTML = "";
+
+  const snap = await getDocs(collection(db, "users"));
+
+  snap.forEach(docSnap => {
+    const u = docSnap.data();
+
+    usersTable.innerHTML += `
+      <tr>
+        <td>${u.name}</td>
+        <td>${u.email}</td>
+        <td>${u.role}</td>
+        <td class="text-right">
+          <button class="btn-sm" onclick="editUser('${docSnap.id}','${u.name}','${u.email}')">
+            Edit
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+/* ======================
+   EDIT USER
+====================== */
+let editUserId = null;
+
+window.editUser = (id, name, email) => {
+  editUserId = id;
+  document.getElementById("editName").value = name;
+  document.getElementById("editEmail").value = email;
+  document.getElementById("editPassword").value = "";
+  document.getElementById("editModal").classList.remove("hidden");
+};
+
+window.closeModal = () => {
+  document.getElementById("editModal").classList.add("hidden");
+};
+
+window.saveUser = async () => {
+  const name = document.getElementById("editName").value;
+  const password = document.getElementById("editPassword").value;
+
+  await updateDoc(doc(db, "users", editUserId), { name });
+
+  if (password) {
+    alert("Password change requires Admin SDK (backend)");
+  }
+
+  closeModal();
+  loadUsers();
+};
+</script>
+<script type="module" src="/src/js/layout.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js")
+        .then(() => console.log("PWA Service Worker registered"))
+        .catch(err => console.error("SW error", err));
+    });
+  }
+</script>
+
+</body>
+</html>

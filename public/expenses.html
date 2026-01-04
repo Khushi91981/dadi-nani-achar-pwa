@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Expenses – दादी–नानी अचार</title>
+<!-- common-head.html -->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="/src/css/style.css" />
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#7b0000" />
+
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2>दादी–नानी अचार</h2>
+<nav>
+  <a href="dashboard.html">🏠 Dashboard</a>
+
+  <!-- ADMIN ONLY -->
+  <a href="users.html" id="usersLink">👤 Users</a>
+
+  <a href="orders.html">📦 Orders</a>
+  <a href="expenses.html">💸 Expenses</a>
+  <a href="reports.html">📊 Reports</a>
+</nav>
+
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HEADER -->
+    <div class="page-header">
+      <div>
+        <h2>Expenses</h2>
+        <p>Add & track business expenses</p>
+      </div>
+      <button id="logoutBtn" class="btn-outline">Logout</button>
+    </div>
+
+    <!-- ADD EXPENSE -->
+    <div class="card">
+      <h3>Add New Expense</h3>
+
+      <div class="form-grid">
+        <input id="title" placeholder="Expense Title">
+        <input id="category" placeholder="Category (Oil, Gas, Salary)">
+        <input id="amount" type="number" placeholder="Amount">
+        <input id="notes" placeholder="Notes (optional)">
+        <button id="saveExpense" class="btn">Save Expense</button>
+      </div>
+    </div>
+
+    <!-- EXPENSE LIST -->
+    <div class="card">
+      <h3>Expenses List</h3>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Notes</th>
+            <th>Added Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="expensesTable"></tbody>
+      </table>
+    </div>
+
+  </main>
+</div>
+
+<script type="module" src="/src/js/expenses.js"></script>
+<script type="module" src="/src/js/layout.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js")
+        .then(() => console.log("PWA Service Worker registered"))
+        .catch(err => console.error("SW error", err));
+    });
+  }
+</script>
+
+</body>
+</html>
