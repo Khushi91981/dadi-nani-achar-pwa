@@ -4,7 +4,7 @@
   <title>Users – दादी–नानी अचार</title>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="src/css/style.css">
+  <link rel="stylesheet" href="./src/css/style.css">
   <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#7b0000">
 
@@ -87,7 +87,7 @@
 </div>
 
 <script type="module">
-import { auth, db } from "./firebase.js";
+import { auth, db } from "./src/js/firebase.js";
 import {
   collection,
   getDocs,
@@ -219,11 +219,11 @@ window.saveUser = async () => {
   loadUsers();
 };
 </script>
-<script type="module" src="./layout.js"></script>
+<script type="module" src="./src/js/layout.js"></script>
 <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js")
+      navigator.serviceWorker.register("./sw.js")
         .then(() => console.log("PWA Service Worker registered"))
         .catch(err => console.error("SW error", err));
     });
