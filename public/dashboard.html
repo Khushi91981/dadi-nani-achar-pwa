@@ -51,7 +51,7 @@
 
 <!-- AUTH GUARD -->
 <script type="module">
-  import { requireAuth } from "src/js/auth-guard.js";
+  import { requireAuth } from "./auth-guard.js";
 
   requireAuth((user) => {
 
@@ -75,7 +75,7 @@
 </script>
 
 <!-- LOGOUT -->
-<script type="module" src="src/js/layout.js"></script>
+<script type="module" src="./layout.js"></script>
 <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {

@@ -87,7 +87,7 @@
 </div>
 
 <script type="module">
-import { auth, db } from "src/js/firebase.js";
+import { auth, db } from "./firebase.js";
 import {
   collection,
   getDocs,
@@ -219,7 +219,7 @@ window.saveUser = async () => {
   loadUsers();
 };
 </script>
-<script type="module" src="src/js/layout.js"></script>
+<script type="module" src="./layout.js"></script>
 <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
