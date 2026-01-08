@@ -28,76 +28,59 @@ document.getElementById("logoutBtn").onclick = async () => {
 };
 
 /* ======================
-   PRODUCT DROPDOWN
+   PRODUCT DROPDOWN (STABLE)
 ====================== */
 const productSelect = document.getElementById("product");
 const priceInput = document.getElementById("price");
 
-console.log("🟡 Orders.js loaded");
-console.log("🟡 productSelect exists?", !!productSelect);
+let productsLoaded = false;
 
-import { auth } from "./firebase.js";
-import { onAuthStateChanged } from
-  "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+onSnapshot(collection(db, "products"), (snap) => {
+  if (productsLoaded) return;
 
-onAuthStateChanged(auth, (user) => {
-  console.log("🟡 Auth state changed:", user);
+  productSelect.innerHTML = `<option value="">Select Product</option>`;
 
-  if (!user) {
-    console.error("🔴 User NOT authenticated");
-    return;
-  }
+  snap.docs.forEach((d) => {
+    const p = d.data();
 
-  console.log("🟢 User authenticated, loading products…");
+    const opt = document.createElement("option");
+    opt.value = p.name;
+    opt.textContent = p.name;
+    opt.dataset.price = p.pricePerKg;
 
-  onSnapshot(
-    collection(db, "products"),
-    (snap) => {
-      console.log("🟢 Products snapshot size:", snap.size);
+    productSelect.appendChild(opt);
+  });
 
-      productSelect.innerHTML =
-        `<option value="">Select Product</option>`;
-
-      snap.docs.forEach((d) => {
-        const p = d.data();
-        console.log("🟢 Product found:", p);
-
-        productSelect.innerHTML += `
-          <option value="${p.name}" data-price="${p.pricePerKg}">
-            ${p.name}
-          </option>
-        `;
-      });
-    },
-    (error) => {
-      console.error("🔴 Products snapshot error:", error);
-    }
-  );
+  productsLoaded = true;
 });
 
-productSelect.onchange = () => {
+productSelect.addEventListener("change", () => {
   const opt = productSelect.selectedOptions[0];
   priceInput.value = opt?.dataset.price || "";
-};
-
+});
 
 /* ======================
-   QTY PRESET (CLEAN UX)
+   QTY PRESET (ROBUST)
 ====================== */
 const qtyPreset = document.getElementById("qtyPreset");
 const qtyInput = document.getElementById("qty");
 
-qtyPreset.onchange = () => {
+function syncQtyUI() {
   if (qtyPreset.value === "custom") {
     qtyInput.classList.remove("hidden");
     qtyInput.value = "";
     qtyInput.focus();
+  } else if (qtyPreset.value) {
+    qtyInput.classList.add("hidden");
+    qtyInput.value = qtyPreset.value;
   } else {
     qtyInput.classList.add("hidden");
-    qtyInput.value = qtyPreset.value || "";
+    qtyInput.value = "";
   }
-};
+}
 
+qtyPreset.addEventListener("change", syncQtyUI);
+syncQtyUI();
 
 /* ======================
    ADD ORDER
@@ -112,7 +95,7 @@ document.getElementById("saveOrder").onclick = async () => {
   const status = document.getElementById("status").value;
 
   if (!customer || !product || !price || !qty) {
-    alert("Fill all required fields");
+    alert("Please fill all required fields");
     return;
   }
 
@@ -132,7 +115,7 @@ document.getElementById("saveOrder").onclick = async () => {
   document.querySelectorAll(".form-grid input").forEach(i => i.value = "");
   productSelect.value = "";
   qtyPreset.value = "";
-  qtyInput.disabled = true;
+  syncQtyUI();
 };
 
 /* ======================
@@ -150,6 +133,7 @@ onSnapshot(collection(db, "orders"), snap => {
 
 searchInput.oninput = () => {
   const term = searchInput.value.toLowerCase();
+
   renderOrders(
     allOrders.filter(o =>
       o.customer.toLowerCase().includes(term) ||
@@ -161,7 +145,7 @@ searchInput.oninput = () => {
 };
 
 /* ======================
-   RENDER + EDIT + DELETE
+   RENDER ORDERS
 ====================== */
 function renderOrders(list) {
   tbody.innerHTML = "";
@@ -173,16 +157,18 @@ function renderOrders(list) {
       <tr data-id="${o.id}" class="${delivered ? "row-disabled" : ""}">
         <td><strong>${o.customer}</strong></td>
         <td>${o.product}</td>
-        <td><input class="qty" type="number" value="${o.qty}" disabled></td>
-        <td><input class="price" type="number" value="${o.price}" disabled></td>
-        <td><input class="delivery" type="number" value="${o.delivery}" disabled></td>
+        <td><input class="qty" value="${o.qty}" disabled></td>
+        <td><input class="price" value="${o.price}" disabled></td>
+        <td><input class="delivery" value="${o.delivery}" disabled></td>
         <td><strong>₹${o.total}</strong></td>
+
         <td>
           <select class="payment" disabled>
             <option ${o.payment_status==="Not Paid Yet"?"selected":""}>Not Paid Yet</option>
             <option ${o.payment_status==="Paid"?"selected":""}>Paid</option>
           </select>
         </td>
+
         <td>
           <select class="status" disabled>
             <option ${o.order_status==="New"?"selected":""}>New</option>
@@ -190,8 +176,10 @@ function renderOrders(list) {
             <option ${o.order_status==="Delivered"?"selected":""}>Delivered</option>
           </select>
         </td>
+
         <td>${formatDate(o.created_at)}</td>
         <td>${formatDate(o.delivery_date)}</td>
+
         <td>
           ${
             delivered
@@ -209,6 +197,9 @@ function renderOrders(list) {
   attachHandlers();
 }
 
+/* ======================
+   EDIT + DELETE
+====================== */
 function attachHandlers() {
   document.querySelectorAll(".edit-btn").forEach(btn => {
     btn.onclick = async () => {
@@ -252,6 +243,7 @@ function attachHandlers() {
     btn.onclick = async () => {
       const row = btn.closest("tr");
       const id = row.dataset.id;
+
       if (!confirm("Delete this order?")) return;
       await deleteDoc(doc(db, "orders", id));
     };

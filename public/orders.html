@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>Orders – दादी–नानी अचार</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <link rel="stylesheet" href="./src/css/style.css" />
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#7b0000" />
@@ -18,7 +17,7 @@
     <h2>दादी–नानी अचार</h2>
     <nav>
       <a href="dashboard.html">🏠 Dashboard</a>
-      <a href="users.html" id="usersLink">👤 Users</a>
+      <a href="users.html">👤 Users</a>
       <a href="products.html">🧺 Products</a>
       <a class="active" href="orders.html">📦 Orders</a>
       <a href="expenses.html">💸 Expenses</a>
@@ -45,15 +44,12 @@
       <div class="form-grid">
         <input id="customer" placeholder="Customer Name">
 
-        <!-- PRODUCT -->
         <select id="product">
           <option value="">Select Product</option>
         </select>
 
-        <!-- PRICE -->
-        <input id="price" type="number" placeholder="Price / KG" disabled>
+        <input id="price" type="number" placeholder="Price / KG" readonly>
 
-        <!-- QTY PRESET -->
         <select id="qtyPreset">
           <option value="">Select Quantity</option>
           <option value="0.25">250 gm</option>
@@ -64,13 +60,13 @@
           <option value="custom">Custom</option>
         </select>
 
-<input
-  id="qty"
-  type="number"
-  step="0.01"
-  placeholder="Custom Qty (KG)"
-  class="hidden"
->
+        <input
+          id="qty"
+          type="number"
+          step="0.01"
+          placeholder="Custom Qty (KG)"
+          class="hidden"
+        />
 
         <input id="delivery" type="number" placeholder="Delivery Charge">
 
@@ -115,25 +111,12 @@
             <th>Action</th>
           </tr>
         </thead>
-
         <tbody id="ordersTable"></tbody>
       </table>
     </div>
 
   </main>
 </div>
-
-<!-- 🔐 AUTH GUARD (CRITICAL) -->
-<script type="module">
-  import { requireAuth } from "./src/js/auth-guard.js";
-
-  requireAuth((user) => {
-    if (user.role !== "admin") {
-      const usersLink = document.getElementById("usersLink");
-      if (usersLink) usersLink.style.display = "none";
-    }
-  });
-</script>
 
 <script type="module" src="./src/js/orders.js"></script>
 <script type="module" src="./src/js/layout.js"></script>
