@@ -1,70 +1,34 @@
+import fs from "fs";
+import path from "path";
+
 export async function handler(event) {
   try {
-    if (event.httpMethod !== "POST") {
-      return {
-        statusCode: 405,
-        body: "Method Not Allowed"
-      };
-    }
-
-    const token = process.env.GITHUB_TOKEN;
-    if (!token) {
-      throw new Error("Missing GITHUB_TOKEN");
-    }
-
-    const data = JSON.parse(event.body);
-
-    const {
-      fileName,
-      fileBase64,
-      title,
-      uploadedBy
-    } = data;
+    const { fileName, fileBase64 } = JSON.parse(event.body);
 
     if (!fileName || !fileBase64) {
-      throw new Error("Invalid payload");
+      return { statusCode: 400, body: "Invalid payload" };
     }
 
-    const repo = "Khushi91981/dadi-nani-achar-pwa";
-    const path = `public/recipes/${fileName}`;
-
-    const githubUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
-
-    const uploadRes = await fetch(githubUrl, {
-      method: "PUT",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json",
-        "Accept": "application/vnd.github+json"
-      },
-      body: JSON.stringify({
-        message: `Add recipe: ${title}`,
-        content: fileBase64
-      })
-    });
-
-    const uploadData = await uploadRes.json();
-
-    if (!uploadRes.ok) {
-      throw new Error(uploadData.message || "GitHub upload failed");
+    const recipesDir = path.join(process.cwd(), "public", "recipes");
+    if (!fs.existsSync(recipesDir)) {
+      fs.mkdirSync(recipesDir, { recursive: true });
     }
+
+    const filePath = path.join(recipesDir, fileName);
+    const buffer = Buffer.from(fileBase64, "base64");
+
+    fs.writeFileSync(filePath, buffer);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        success: true,
-        url: `/recipes/${fileName}`
-      })
+      body: JSON.stringify({ success: true })
     };
 
   } catch (err) {
-    console.error("UPLOAD ERROR:", err);
-
+    console.error(err);
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: err.message
-      })
+      body: JSON.stringify({ error: err.message })
     };
   }
 }
