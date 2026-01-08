@@ -12,14 +12,6 @@ import {
 import { logout } from "./auth.js";
 
 /* ======================
-   HELPERS
-====================== */
-const formatDate = (ts) =>
-  ts?.seconds
-    ? new Date(ts.seconds * 1000).toISOString().split("T")[0]
-    : "-";
-
-/* ======================
    LOGOUT
 ====================== */
 document.getElementById("logoutBtn").onclick = async () => {
@@ -30,48 +22,49 @@ document.getElementById("logoutBtn").onclick = async () => {
 /* ======================
    ADD PRODUCT
 ====================== */
-const productForm = document.getElementById("productForm");
+document.getElementById("saveProduct").onclick = async () => {
+  const name = document.getElementById("name").value.trim();
+  const price = Number(document.getElementById("price").value);
+  const madeBy = document.getElementById("madeBy").value.trim() || "-";
+  const createdBy = document.getElementById("createdBy").value.trim() || "-";
 
-productForm.onsubmit = async (e) => {
-  e.preventDefault();
-
-  const name = productForm.name.value.trim();
-  const pricePerKg = Number(productForm.pricePerKg.value);
-  const madeBy = productForm.madeBy.value.trim();
-  const createdBy = productForm.createdBy.value.trim();
-
-  if (!name || !pricePerKg || !madeBy || !createdBy) {
-    alert("Fill all required fields");
+  if (!name || !price) {
+    alert("Product name and price are required");
     return;
   }
 
   await addDoc(collection(db, "products"), {
     name,
-    pricePerKg,
+    pricePerKg: price,
     madeBy,
     createdBy,
     createdAt: serverTimestamp()
   });
 
-  productForm.reset();
+  document.querySelectorAll(".form-grid input").forEach(i => i.value = "");
 };
 
 /* ======================
-   LOAD PRODUCTS (LIVE)
+   LOAD PRODUCTS
 ====================== */
-const tbody = document.getElementById("productTable");
+const tbody = document.getElementById("productsTable");
 
-onSnapshot(collection(db, "products"), (snap) => {
+onSnapshot(collection(db, "products"), snap => {
+  const products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderProducts(products);
+});
+
+/* ======================
+   RENDER TABLE
+====================== */
+function renderProducts(list) {
   tbody.innerHTML = "";
 
-  snap.docs.forEach((d) => {
-    const p = d.data();
-
+  list.forEach(p => {
     tbody.innerHTML += `
-      <tr data-id="${d.id}">
-        <td>
-          <input class="name" value="${p.name}" disabled>
-        </td>
+      <tr data-id="${p.id}">
+        <!-- NAME LOCKED -->
+        <td><strong class="product-name">${p.name}</strong></td>
 
         <td>
           <input class="price" type="number" value="${p.pricePerKg}" disabled>
@@ -85,8 +78,12 @@ onSnapshot(collection(db, "products"), (snap) => {
           <input class="createdBy" value="${p.createdBy}" disabled>
         </td>
 
-        <td class="lock">
-          ${formatDate(p.createdAt)}
+        <td>
+          ${
+            p.createdAt?.seconds
+              ? new Date(p.createdAt.seconds * 1000).toISOString().split("T")[0]
+              : "-"
+          }
         </td>
 
         <td>
@@ -98,47 +95,41 @@ onSnapshot(collection(db, "products"), (snap) => {
   });
 
   attachHandlers();
-});
+}
 
 /* ======================
    EDIT + DELETE
 ====================== */
 function attachHandlers() {
 
-  /* EDIT / SAVE */
-  document.querySelectorAll(".edit-btn").forEach((btn) => {
+  document.querySelectorAll(".edit-btn").forEach(btn => {
     btn.onclick = async () => {
       const row = btn.closest("tr");
       const id = row.dataset.id;
 
-      const name = row.querySelector(".name");
       const price = row.querySelector(".price");
       const madeBy = row.querySelector(".madeBy");
       const createdBy = row.querySelector(".createdBy");
 
       if (btn.innerText === "Edit") {
         row.classList.add("editing");
-        [name, price, madeBy, createdBy].forEach(i => i.disabled = false);
+        [price, madeBy, createdBy].forEach(el => el.disabled = false);
         btn.innerText = "Save";
         return;
       }
 
-      // SAVE
       await updateDoc(doc(db, "products", id), {
-        name: name.value.trim(),
         pricePerKg: Number(price.value),
         madeBy: madeBy.value.trim(),
         createdBy: createdBy.value.trim()
       });
 
       row.classList.remove("editing");
-      [name, price, madeBy, createdBy].forEach(i => i.disabled = true);
       btn.innerText = "Edit";
     };
   });
 
-  /* DELETE */
-  document.querySelectorAll(".delete-btn").forEach((btn) => {
+  document.querySelectorAll(".delete-btn").forEach(btn => {
     btn.onclick = async () => {
       const row = btn.closest("tr");
       const id = row.dataset.id;
