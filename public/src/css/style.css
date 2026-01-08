@@ -634,3 +634,46 @@ tr.editing {
 button.btn-sm.delete-btn {
     margin-top: 5px;
 }
+
+/* =====================
+   MOBILE FIX – PRODUCT TABLE
+===================== */
+@media (max-width: 768px) {
+
+  /* Allow horizontal scrolling */
+  .data-table {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Prevent inputs from shrinking */
+  .data-table input {
+    min-width: 120px;
+    white-space: nowrap;
+  }
+
+  /* Product Name column wider */
+  .data-table td:first-child,
+  .data-table th:first-child {
+    min-width: 160px;
+  }
+
+  /* Price column */
+  .data-table td:nth-child(2),
+  .data-table th:nth-child(2) {
+    min-width: 120px;
+  }
+
+  /* Made By / Created By */
+  .data-table td:nth-child(3),
+  .data-table td:nth-child(4),
+  .data-table th:nth-child(3),
+  .data-table th:nth-child(4) {
+    min-width: 120px;
+  }
+
+   .data-table input {
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+}
