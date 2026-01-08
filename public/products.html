@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Products</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="src/css/style.css" />
+</head>
+<body>
+
+  <!-- NAVBAR (same structure as other pages) -->
+  <nav>
+    <a href="dashboard.html">🏠 Dashboard</a>
+    <a href="orders.html">📦 Orders</a>
+    <a href="expenses.html">💸 Expenses</a>
+    <a href="products.html">🧺 Products</a>
+    <a href="users.html" id="usersLink">👤 Users</a>
+    <a href="reports.html">📊 Reports</a>
+  </nav>
+
+  <main>
+    <h2>Add Product</h2>
+
+    <!-- PRODUCT FORM -->
+    <form id="productForm">
+      <input
+        type="text"
+        name="name"
+        placeholder="Product Name"
+        required
+      />
+
+      <input
+        type="number"
+        name="pricePerKg"
+        placeholder="Price per KG"
+        required
+      />
+
+      <input
+        type="text"
+        name="madeBy"
+        placeholder="Achaar made by (Name)"
+        required
+      />
+
+      <input
+        type="text"
+        name="createdBy"
+        placeholder="Created by (Name)"
+        required
+      />
+
+      <button type="submit">Add Product</button>
+    </form>
+
+    <hr />
+
+    <!-- PRODUCTS TABLE -->
+    <h2>Product List</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Per KG Price</th>
+          <th>Made By</th>
+          <th>Created By</th>
+          <th>Created Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="productTable"></tbody>
+    </table>
+  </main>
+
+  <script type="module" src="src/js/products.js"></script>
+</body>
+</html>
