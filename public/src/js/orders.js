@@ -28,43 +28,75 @@ document.getElementById("logoutBtn").onclick = async () => {
 };
 
 /* ======================
-   PRODUCT DROPDOWN (STABLE)
+   DOM REFERENCES
 ====================== */
 const productSelect = document.getElementById("product");
 const priceInput = document.getElementById("price");
 
-let productsLoaded = false;
-
-onSnapshot(collection(db, "products"), (snap) => {
-  if (productsLoaded) return;
-
-  productSelect.innerHTML = `<option value="">Select Product</option>`;
-
-  snap.docs.forEach(d => {
-    const p = d.data();
-
-    const opt = document.createElement("option");
-    opt.value = p.name;
-    opt.textContent = p.name;
-    opt.dataset.price = p.pricePerKg;
-
-    productSelect.appendChild(opt);
-  });
-
-  productsLoaded = true;
-});
-
-productSelect.onchange = () => {
-  const opt = productSelect.selectedOptions[0];
-  priceInput.value = opt?.dataset.price || "";
-};
-
-/* ======================
-   QTY PRESET (ROBUST)
-====================== */
 const qtyPreset = document.getElementById("qtyPreset");
 const qtyInput = document.getElementById("qty");
 
+const customerInput = document.getElementById("customer");
+const deliveryInput = document.getElementById("delivery");
+const paymentSelect = document.getElementById("payment");
+const statusSelect = document.getElementById("status");
+
+const saveBtn = document.getElementById("saveOrder");
+
+/* ======================
+   PRODUCT STORE (IN-MEMORY)
+====================== */
+let PRODUCTS = {}; // { name: { pricePerKg } }
+
+/* ======================
+   LOAD PRODUCTS (PRIORITY)
+====================== */
+productSelect.innerHTML =
+  `<option value="">Loading products…</option>`;
+
+onSnapshot(
+  collection(db, "products"),
+  (snapshot) => {
+    PRODUCTS = {};
+    productSelect.innerHTML =
+      `<option value="">Select Product</option>`;
+
+    snapshot.forEach(doc => {
+      const p = doc.data();
+      if (!p?.name || !p?.pricePerKg) return;
+
+      PRODUCTS[p.name] = p;
+
+      const opt = document.createElement("option");
+      opt.value = p.name;
+      opt.textContent = p.name;
+      productSelect.appendChild(opt);
+    });
+
+    if (snapshot.empty) {
+      productSelect.innerHTML =
+        `<option value="">No products found</option>`;
+    }
+  },
+  (error) => {
+    console.error("❌ Product load failed:", error);
+    productSelect.innerHTML =
+      `<option value="">Failed to load products</option>`;
+  }
+);
+
+/* ======================
+   PRODUCT → PRICE BINDING
+====================== */
+productSelect.addEventListener("change", () => {
+  const selected = productSelect.value;
+  priceInput.value =
+    PRODUCTS[selected]?.pricePerKg || "";
+});
+
+/* ======================
+   QTY PRESET LOGIC
+====================== */
 function syncQtyUI() {
   if (qtyPreset.value === "custom") {
     qtyInput.classList.remove("hidden");
@@ -85,14 +117,12 @@ syncQtyUI();
 /* ======================
    ADD ORDER
 ====================== */
-document.getElementById("saveOrder").onclick = async () => {
-  const customer = document.getElementById("customer").value.trim();
+saveBtn.onclick = async () => {
+  const customer = customerInput.value.trim();
   const product = productSelect.value;
   const price = Number(priceInput.value);
   const qty = Number(qtyInput.value);
-  const delivery = Number(document.getElementById("delivery").value || 0);
-  const payment = document.getElementById("payment").value;
-  const status = document.getElementById("status").value;
+  const delivery = Number(deliveryInput.value || 0);
 
   if (!customer || !product || !price || !qty) {
     alert("Please fill all required fields");
@@ -106,36 +136,41 @@ document.getElementById("saveOrder").onclick = async () => {
     qty,
     delivery,
     total: price * qty + delivery,
-    payment_status: payment,
-    order_status: status,
+    payment_status: paymentSelect.value,
+    order_status: statusSelect.value,
     created_at: serverTimestamp(),
-    delivery_date: status === "Delivered" ? serverTimestamp() : null
+    delivery_date:
+      statusSelect.value === "Delivered"
+        ? serverTimestamp()
+        : null
   });
 
-  document.querySelectorAll(".form-grid input").forEach(i => i.value = "");
+  /* Reset form */
+  customerInput.value = "";
   productSelect.value = "";
+  priceInput.value = "";
   qtyPreset.value = "";
+  deliveryInput.value = "";
   syncQtyUI();
 };
 
 /* ======================
-   LOAD + SEARCH
+   ORDERS LIST
 ====================== */
 const tbody = document.getElementById("ordersTable");
 const searchInput = document.getElementById("orderSearch");
 
-let allOrders = [];
+let ALL_ORDERS = [];
 
 onSnapshot(collection(db, "orders"), snap => {
-  allOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  renderOrders(allOrders);
+  ALL_ORDERS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderOrders(ALL_ORDERS);
 });
 
 searchInput.oninput = () => {
   const term = searchInput.value.toLowerCase();
-
   renderOrders(
-    allOrders.filter(o =>
+    ALL_ORDERS.filter(o =>
       o.customer.toLowerCase().includes(term) ||
       o.product.toLowerCase().includes(term) ||
       o.payment_status.toLowerCase().includes(term) ||
@@ -214,7 +249,8 @@ function attachHandlers() {
 
       if (btn.innerText === "Edit") {
         row.classList.add("editing");
-        [qty, price, delivery, payment, status].forEach(el => el.disabled = false);
+        [qty, price, delivery, payment, status]
+          .forEach(el => el.disabled = false);
         btn.innerText = "Save";
         return;
       }
@@ -231,7 +267,9 @@ function attachHandlers() {
         payment_status: payment.value,
         order_status: status.value,
         delivery_date:
-          status.value === "Delivered" ? serverTimestamp() : null
+          status.value === "Delivered"
+            ? serverTimestamp()
+            : null
       });
 
       row.classList.remove("editing");
