@@ -22,6 +22,7 @@ document.getElementById("logoutBtn").onclick = async () => {
   location.href = "index.html";
 };
 
+/* ---------------- UPLOAD ---------------- */
 form.onsubmit = async (e) => {
   e.preventDefault();
 
@@ -44,22 +45,20 @@ form.onsubmit = async (e) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          title,
+          uploadedBy,
           fileName: file.name,
           fileBase64: base64
         })
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
 
-      await addDoc(collection(db, "recipes"), {
-        title,
-        uploadedBy,
-        fileUrl: data.fileUrl,
-        createdAt: serverTimestamp()
-      });
+      if (!res.ok) {
+        throw new Error(data.error || "Upload failed");
+      }
 
-      alert("Recipe uploaded");
+      alert("Recipe uploaded successfully");
       form.reset();
 
     } catch (err) {
@@ -71,19 +70,26 @@ form.onsubmit = async (e) => {
   reader.readAsDataURL(file);
 };
 
+/* ---------------- LIST ---------------- */
 onSnapshot(collection(db, "recipes"), snap => {
   table.innerHTML = "";
 
-  snap.forEach(d => {
+  snap.docs.forEach(d => {
     const r = d.data();
-    const date = r.createdAt?.seconds
-      ? new Date(r.createdAt.seconds * 1000).toISOString().split("T")[0]
-      : "-";
+
+    const date =
+      r.createdAt?.seconds
+        ? new Date(r.createdAt.seconds * 1000)
+            .toISOString()
+            .split("T")[0]
+        : "-";
 
     table.innerHTML += `
       <tr>
         <td><strong>${r.title}</strong></td>
-        <td><a href="${r.fileUrl}" target="_blank">Open</a></td>
+        <td>
+          <a href="${r.fileUrl}" target="_blank">Open</a>
+        </td>
         <td>${date}</td>
         <td>${r.uploadedBy}</td>
         <td>
