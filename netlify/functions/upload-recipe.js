@@ -38,4 +38,4 @@ export async function handler(event) {
       })
     };
   }
-}1
+}
