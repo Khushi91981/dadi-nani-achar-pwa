@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <title>Products – दादी–नानी अचार</title>
 
-  <!-- COMMON HEAD -->
+  <!-- common-head.html -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="./src/css/style.css" />
@@ -12,6 +12,7 @@
 </head>
 
 <body>
+
 <div class="app">
 
   <!-- SIDEBAR -->
@@ -20,8 +21,11 @@
 
     <nav>
       <a href="dashboard.html">🏠 Dashboard</a>
+
+      <!-- ADMIN ONLY -->
       <a href="users.html" id="usersLink">👤 Users</a>
       <a href="products.html" class="active">🧺 Products</a>
+
       <a href="orders.html">📦 Orders</a>
       <a href="expenses.html">💸 Expenses</a>
       <a href="reports.html">📊 Reports</a>
@@ -35,47 +39,39 @@
     <div class="page-header">
       <div>
         <h2>Products</h2>
-        <p class="role-text">Manage achaar products & pricing</p>
+        <p>Manage achaar products & pricing</p>
       </div>
-
       <button id="logoutBtn" class="btn-outline">Logout</button>
     </div>
 
     <!-- ADD PRODUCT -->
     <div class="card">
-      <h3>Add Product</h3>
+      <h3>Add New Product</h3>
 
       <form id="productForm" class="form-grid">
         <input
-          type="text"
           name="name"
           placeholder="Product Name"
-          required
         />
 
         <input
-          type="number"
           name="pricePerKg"
+          type="number"
           placeholder="Price per KG"
-          required
         />
 
         <input
-          type="text"
           name="madeBy"
           placeholder="Achaar made by (Name)"
-          required
         />
 
         <input
-          type="text"
           name="createdBy"
           placeholder="Created by (Name)"
-          required
         />
 
-        <button type="submit" class="btn">
-          ➕ Add Product
+        <button class="btn" type="submit">
+          Add Product
         </button>
       </form>
     </div>
@@ -95,6 +91,7 @@
             <th>Action</th>
           </tr>
         </thead>
+
         <tbody id="productTable"></tbody>
       </table>
     </div>
@@ -102,30 +99,19 @@
   </main>
 </div>
 
-<!-- AUTH GUARD -->
-<script type="module">
-  import { requireAuth } from "./src/js/auth-guard.js";
-
-  requireAuth((user) => {
-    // Hide Users tab for non-admin
-    if (user.role !== "admin") {
-      const usersLink = document.getElementById("usersLink");
-      if (usersLink) usersLink.style.display = "none";
-    }
-  });
-</script>
-
-<!-- LOGOUT + LAYOUT -->
-<script type="module" src="./src/js/layout.js"></script>
-
 <!-- PRODUCTS LOGIC -->
 <script type="module" src="./src/js/products.js"></script>
+
+<!-- LAYOUT (LOGOUT ETC) -->
+<script type="module" src="./src/js/layout.js"></script>
 
 <!-- PWA -->
 <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js");
+      navigator.serviceWorker.register("./sw.js")
+        .then(() => console.log("PWA Service Worker registered"))
+        .catch(err => console.error("SW error", err));
     });
   }
 </script>
