@@ -82,20 +82,22 @@ productSelect.onchange = () => {
 
 
 /* ======================
-   QTY PRESET
+   QTY PRESET (CLEAN UX)
 ====================== */
 const qtyPreset = document.getElementById("qtyPreset");
 const qtyInput = document.getElementById("qty");
 
 qtyPreset.onchange = () => {
   if (qtyPreset.value === "custom") {
-    qtyInput.disabled = false;
+    qtyInput.classList.remove("hidden");
     qtyInput.value = "";
+    qtyInput.focus();
   } else {
-    qtyInput.disabled = true;
+    qtyInput.classList.add("hidden");
     qtyInput.value = qtyPreset.value || "";
   }
 };
+
 
 /* ======================
    ADD ORDER
