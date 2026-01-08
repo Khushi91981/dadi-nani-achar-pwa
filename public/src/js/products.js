@@ -1,4 +1,4 @@
-import { auth, db } from "./firebase.js";
+import { db } from "./firebase.js";
 
 import {
   collection,
@@ -9,23 +9,13 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-import {
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
 /* REFERENCES */
 const productsRef = collection(db, "products");
 const productForm = document.getElementById("productForm");
 const productTable = document.getElementById("productTable");
 
-/* AUTH CHECK */
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "index.html";
-  } else {
-    loadProducts();
-  }
-});
+/* LOAD PRODUCTS IMMEDIATELY */
+loadProducts();
 
 /* ADD PRODUCT */
 productForm.addEventListener("submit", async (e) => {
@@ -41,21 +31,16 @@ productForm.addEventListener("submit", async (e) => {
     return;
   }
 
-  try {
-    await addDoc(productsRef, {
-      name,
-      pricePerKg,
-      madeBy,
-      createdBy,
-      createdAt: serverTimestamp()
-    });
+  await addDoc(productsRef, {
+    name,
+    pricePerKg,
+    madeBy,
+    createdBy,
+    createdAt: serverTimestamp()
+  });
 
-    productForm.reset();
-    loadProducts();
-  } catch (error) {
-    alert("Error adding product");
-    console.error(error);
-  }
+  productForm.reset();
+  loadProducts();
 });
 
 /* LOAD PRODUCTS */
@@ -65,18 +50,20 @@ async function loadProducts() {
   const snapshot = await getDocs(productsRef);
 
   snapshot.forEach((docSnap) => {
-    const data = docSnap.data();
+    const p = docSnap.data();
 
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${data.name}</td>
-      <td>₹${data.pricePerKg}</td>
-      <td>${data.madeBy}</td>
-      <td>${data.createdBy}</td>
-      <td>${data.createdAt ? data.createdAt.toDate().toLocaleDateString() : "-"}</td>
+      <td>${p.name}</td>
+      <td>₹${p.pricePerKg}</td>
+      <td>${p.madeBy}</td>
+      <td>${p.createdBy}</td>
+      <td>${p.createdAt ? p.createdAt.toDate().toLocaleDateString() : "-"}</td>
       <td>
-        <button onclick="deleteProduct('${docSnap.id}')">Delete</button>
+        <button class="btn-sm delete-btn" onclick="deleteProduct('${docSnap.id}')">
+          Delete
+        </button>
       </td>
     `;
 
