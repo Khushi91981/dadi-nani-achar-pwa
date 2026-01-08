@@ -23,47 +23,60 @@ document.getElementById("logoutBtn").onclick = async () => {
 ====================== */
 const form = document.getElementById("recipeForm");
 
+const recipeTitleInput = document.getElementById("recipeTitle");
+const recipeFileInput = document.getElementById("recipeFile");
+const uploadedByInput = document.getElementById("uploadedBy");
+
 form.onsubmit = async (e) => {
   e.preventDefault();
 
-  const title = recipeTitle.value.trim();
-  const file = recipeFile.files[0];
+  const title = recipeTitleInput.value.trim();
+  const file = recipeFileInput.files[0];
   const uploadedBy = uploadedByInput.value.trim();
 
   if (!title || !file) {
-    alert("Title and file are required");
+    alert("Recipe title and file are required");
     return;
   }
 
   const reader = new FileReader();
 
   reader.onload = async () => {
-    const base64 = reader.result.split(",")[1];
+    try {
+      const base64 = reader.result.split(",")[1];
 
-    const res = await fetch("/.netlify/functions/upload-recipe", {
-      method: "POST",
-      body: JSON.stringify({
-        fileName: file.name,
-        fileBase64: base64,
-        message: `Recipe: ${title}`
-      })
-    });
+      const res = await fetch("/.netlify/functions/upload-recipe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileBase64: base64,
+          message: `Recipe upload: ${title}`
+        })
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!data.success) {
-      alert("Upload failed");
-      return;
+      if (!data.success) {
+        console.error(data);
+        alert("Upload failed");
+        return;
+      }
+
+      await addDoc(collection(db, "recipes"), {
+        title,
+        fileUrl: data.url,
+        uploadedBy: uploadedBy || "-",
+        createdAt: serverTimestamp()
+      });
+
+      form.reset();
+      alert("Recipe uploaded successfully ✅");
+
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
     }
-
-    await addDoc(collection(db, "recipes"), {
-      title,
-      fileUrl: data.url,
-      uploadedBy: uploadedBy || "-",
-      createdAt: serverTimestamp()
-    });
-
-    form.reset();
   };
 
   reader.readAsDataURL(file);
