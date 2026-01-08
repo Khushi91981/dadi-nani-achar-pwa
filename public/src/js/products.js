@@ -4,11 +4,20 @@ import {
   addDoc,
   onSnapshot,
   doc,
+  updateDoc,
   deleteDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import { logout } from "./auth.js";
+
+/* ======================
+   HELPERS
+====================== */
+const formatDate = (ts) =>
+  ts?.seconds
+    ? new Date(ts.seconds * 1000).toISOString().split("T")[0]
+    : "-";
 
 /* ======================
    LOGOUT
@@ -55,39 +64,81 @@ const tbody = document.getElementById("productTable");
 onSnapshot(collection(db, "products"), (snap) => {
   tbody.innerHTML = "";
 
-  snap.docs.forEach(d => {
+  snap.docs.forEach((d) => {
     const p = d.data();
 
     tbody.innerHTML += `
       <tr data-id="${d.id}">
-        <td><strong>${p.name}</strong></td>
-        <td>₹${p.pricePerKg}</td>
-        <td>${p.madeBy}</td>
-        <td>${p.createdBy}</td>
-        <td>${formatDate(p.createdAt)}</td>
         <td>
+          <input class="name" value="${p.name}" disabled>
+        </td>
+
+        <td>
+          <input class="price" type="number" value="${p.pricePerKg}" disabled>
+        </td>
+
+        <td>
+          <input class="madeBy" value="${p.madeBy}" disabled>
+        </td>
+
+        <td>
+          <input class="createdBy" value="${p.createdBy}" disabled>
+        </td>
+
+        <td class="lock">
+          ${formatDate(p.createdAt)}
+        </td>
+
+        <td>
+          <button class="btn-sm edit-btn">Edit</button>
           <button class="btn-sm delete-btn">Delete</button>
         </td>
       </tr>
     `;
   });
 
-  attachDeleteHandlers();
+  attachHandlers();
 });
 
 /* ======================
-   HELPERS
+   EDIT + DELETE
 ====================== */
-const formatDate = (ts) =>
-  ts?.seconds
-    ? new Date(ts.seconds * 1000).toISOString().split("T")[0]
-    : "-";
+function attachHandlers() {
 
-/* ======================
-   DELETE
-====================== */
-function attachDeleteHandlers() {
-  document.querySelectorAll(".delete-btn").forEach(btn => {
+  /* EDIT / SAVE */
+  document.querySelectorAll(".edit-btn").forEach((btn) => {
+    btn.onclick = async () => {
+      const row = btn.closest("tr");
+      const id = row.dataset.id;
+
+      const name = row.querySelector(".name");
+      const price = row.querySelector(".price");
+      const madeBy = row.querySelector(".madeBy");
+      const createdBy = row.querySelector(".createdBy");
+
+      if (btn.innerText === "Edit") {
+        row.classList.add("editing");
+        [name, price, madeBy, createdBy].forEach(i => i.disabled = false);
+        btn.innerText = "Save";
+        return;
+      }
+
+      // SAVE
+      await updateDoc(doc(db, "products", id), {
+        name: name.value.trim(),
+        pricePerKg: Number(price.value),
+        madeBy: madeBy.value.trim(),
+        createdBy: createdBy.value.trim()
+      });
+
+      row.classList.remove("editing");
+      [name, price, madeBy, createdBy].forEach(i => i.disabled = true);
+      btn.innerText = "Edit";
+    };
+  });
+
+  /* DELETE */
+  document.querySelectorAll(".delete-btn").forEach((btn) => {
     btn.onclick = async () => {
       const row = btn.closest("tr");
       const id = row.dataset.id;
