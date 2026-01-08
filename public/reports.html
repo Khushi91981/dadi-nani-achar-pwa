@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Recipes – दादी–नानी अचार</title>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="./src/css/style.css" />
@@ -16,6 +17,7 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <h2>दादी–नानी अचार</h2>
+
     <nav>
       <a href="dashboard.html">🏠 Dashboard</a>
       <a href="users.html">👤 Users</a>
@@ -44,17 +46,22 @@
       <h3>Add Recipe</h3>
 
       <form id="recipeForm" class="form-grid">
-        <input id="titleInput" placeholder="Recipe Title" required />
-        <input id="uploadedByInput" placeholder="Uploaded By" required />
-        <input id="fileInput" type="file" accept=".pdf,.doc,.docx,.jpg,.png" required />
+        <input id="titleInput" placeholder="Recipe Title" />
+        <input id="uploadedByInput" placeholder="Uploaded By" />
+
+        <input
+          id="fileInput"
+          type="file"
+          accept=".pdf,.doc,.docx,.jpg,.png"
+        />
 
         <button class="btn">Upload Recipe</button>
       </form>
 
-      <small>Files are stored securely via Netlify Functions</small>
+      <p class="hint">Files are stored in <code>/public/recipes/</code></p>
     </div>
 
-    <!-- LIBRARY -->
+    <!-- RECIPE LIST -->
     <div class="card">
       <h3>Recipe Library</h3>
 
@@ -77,5 +84,14 @@
 
 <script type="module" src="./src/js/recipes.js"></script>
 <script type="module" src="./src/js/layout.js"></script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js");
+  });
+}
+</script>
+
 </body>
 </html>
