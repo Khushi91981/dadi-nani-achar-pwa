@@ -2,28 +2,23 @@
 <html>
 <head>
   <title>Recipes – दादी–नानी अचार</title>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="./src/css/style.css" />
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#7b0000" />
 </head>
 
 <body>
-
 <div class="app">
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <h2>दादी–नानी अचार</h2>
-
     <nav>
       <a href="dashboard.html">🏠 Dashboard</a>
       <a href="users.html">👤 Users</a>
       <a href="products.html">🧺 Products</a>
       <a href="orders.html">📦 Orders</a>
-      <a class="active" href="recipes.html">📘 Recipes</a>
+      <a href="recipes.html" class="active">📘 Recipes</a>
       <a href="expenses.html">💸 Expenses</a>
       <a href="reports.html">📊 Reports</a>
     </nav>
@@ -36,7 +31,7 @@
     <div class="page-header">
       <div>
         <h2>Recipes</h2>
-        <p>Read-only recipe document library</p>
+        <p class="role-text">Read-only recipe document library</p>
       </div>
       <button id="logoutBtn" class="btn-outline">Logout</button>
     </div>
@@ -44,28 +39,19 @@
     <!-- ADD RECIPE -->
     <div class="card">
       <h3>Add Recipe</h3>
-
       <form id="recipeForm" class="form-grid">
         <input id="titleInput" placeholder="Recipe Title" />
         <input id="uploadedByInput" placeholder="Uploaded By" />
-
-        <input
-          id="fileInput"
-          type="file"
-          accept=".pdf,.doc,.docx,.jpg,.png"
-        />
-
+        <input id="fileInput" type="file" />
         <button class="btn">Upload Recipe</button>
       </form>
-
-      <p class="hint">Files are stored in <code>/public/recipes/</code></p>
+      <small>Files stored in <b>/public/recipes/</b></small>
     </div>
 
-    <!-- RECIPE LIST -->
+    <!-- LIST -->
     <div class="card">
       <h3>Recipe Library</h3>
-
-      <table class="data-table">
+      <table class="table">
         <thead>
           <tr>
             <th>Title</th>
@@ -84,14 +70,5 @@
 
 <script type="module" src="./src/js/recipes.js"></script>
 <script type="module" src="./src/js/layout.js"></script>
-
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js");
-  });
-}
-</script>
-
 </body>
 </html>
