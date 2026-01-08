@@ -4,9 +4,10 @@
   <meta charset="UTF-8" />
   <title>Orders – दादी–नानी अचार</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <link rel="stylesheet" href="./src/css/style.css" />
   <link rel="manifest" href="/manifest.json" />
-<meta name="theme-color" content="#7b0000" />
+  <meta name="theme-color" content="#7b0000" />
 </head>
 
 <body>
@@ -18,8 +19,7 @@
     <nav>
       <a href="dashboard.html">🏠 Dashboard</a>
       <a href="users.html">👤 Users</a>
-    <a href="products.html">🧺 Products</a>
-
+      <a href="products.html">🧺 Products</a>
       <a class="active" href="orders.html">📦 Orders</a>
       <a href="expenses.html">💸 Expenses</a>
       <a href="reports.html">📊 Reports</a>
@@ -38,64 +38,62 @@
       <button id="logoutBtn" class="btn-outline">Logout</button>
     </div>
 
-<!-- ADD ORDER -->
-<div class="card">
-  <h3>Add New Order</h3>
+    <!-- ADD ORDER -->
+    <div class="card">
+      <h3>Add New Order</h3>
 
-  <div class="form-grid">
-    <input id="customer" placeholder="Customer Name">
+      <div class="form-grid">
+        <input id="customer" placeholder="Customer Name" />
 
-    <!-- PRODUCT DROPDOWN -->
-    <select id="product">
-      <option value="">Select Product</option>
-    </select>
+        <!-- PRODUCT -->
+        <select id="product">
+          <option value="">Select Product</option>
+        </select>
 
-    <!-- AUTO PRICE -->
-    <input id="price" type="number" placeholder="Price / KG" disabled>
+        <!-- AUTO PRICE -->
+        <input id="price" type="number" placeholder="Price / KG" disabled />
 
-    <!-- QTY PRESET -->
-    <select id="qtyPreset">
-      <option value="">Select Quantity</option>
-      <option value="0.25">250 gm</option>
-      <option value="0.5">500 gm</option>
-      <option value="1">1 KG</option>
-      <option value="2">2 KG</option>
-      <option value="5">5 KG</option>
-      <option value="custom">Custom</option>
-    </select>
+        <!-- QTY PRESET -->
+        <select id="qtyPreset">
+          <option value="">Select Quantity</option>
+          <option value="0.25">250 gm</option>
+          <option value="0.5">500 gm</option>
+          <option value="1">1 KG</option>
+          <option value="2">2 KG</option>
+          <option value="5">5 KG</option>
+          <option value="custom">Custom</option>
+        </select>
 
-    <!-- CUSTOM QTY -->
-    <input
-      id="qty"
-      type="number"
-      step="0.01"
-      placeholder="Custom Qty (KG)"
-      disabled
-    >
+        <!-- CUSTOM QTY -->
+        <input
+          id="qty"
+          type="number"
+          step="0.01"
+          placeholder="Custom Qty (KG)"
+          disabled
+        />
 
-    <input id="delivery" type="number" placeholder="Delivery Charge">
+        <input id="delivery" type="number" placeholder="Delivery Charge" />
 
-    <select id="payment">
-      <option>Not Paid Yet</option>
-      <option>Paid</option>
-    </select>
+        <select id="payment">
+          <option>Not Paid Yet</option>
+          <option>Paid</option>
+        </select>
 
-    <select id="status">
-      <option>New</option>
-      <option>Being Prepared</option>
-      <option>Delivered</option>
-    </select>
+        <select id="status">
+          <option>New</option>
+          <option>Being Prepared</option>
+          <option>Delivered</option>
+        </select>
 
-    <button id="saveOrder" class="btn">Save Order</button>
-  </div>
-</div>
-
+        <button id="saveOrder" class="btn">Save Order</button>
+      </div>
+    </div>
 
     <!-- ORDERS LIST -->
     <div class="card">
       <h3>Orders List</h3>
 
-      <!-- SEARCH -->
       <input
         id="orderSearch"
         placeholder="Search by customer, product, payment or status"
@@ -127,12 +125,11 @@
 </div>
 
 <script type="module" src="./src/js/orders.js"></script>
+
 <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js")
-        .then(() => console.log("PWA Service Worker registered"))
-        .catch(err => console.error("SW error", err));
+      navigator.serviceWorker.register("./sw.js");
     });
   }
 </script>

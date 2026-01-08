@@ -1,4 +1,4 @@
-import { db } from "./firebase.js";
+import { db, auth } from "./firebase.js";
 import {
   collection,
   addDoc,
@@ -8,6 +8,10 @@ import {
   deleteDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import { logout } from "./auth.js";
 
@@ -33,33 +37,31 @@ document.getElementById("logoutBtn").onclick = async () => {
 const productSelect = document.getElementById("product");
 const priceInput = document.getElementById("price");
 
-let productsMap = {};
+onAuthStateChanged(auth, (user) => {
+  if (!user) return;
 
-// Load products
-onSnapshot(collection(db, "products"), snap => {
-  productSelect.innerHTML = `<option value="">Select Product</option>`;
-  productsMap = {};
+  onSnapshot(collection(db, "products"), (snap) => {
+    productSelect.innerHTML =
+      `<option value="">Select Product</option>`;
 
-  snap.docs.forEach(d => {
-    const p = d.data();
-    productsMap[d.id] = p;
-
-    productSelect.innerHTML += `
-      <option value="${p.name}" data-price="${p.pricePerKg}">
-        ${p.name}
-      </option>
-    `;
+    snap.docs.forEach((d) => {
+      const p = d.data();
+      productSelect.innerHTML += `
+        <option value="${p.name}" data-price="${p.pricePerKg}">
+          ${p.name}
+        </option>
+      `;
+    });
   });
 });
 
-// Auto price fill
 productSelect.onchange = () => {
-  const selected = productSelect.selectedOptions[0];
-  priceInput.value = selected?.dataset.price || "";
+  const opt = productSelect.selectedOptions[0];
+  priceInput.value = opt?.dataset.price || "";
 };
 
 /* ======================
-   QTY PRESET LOGIC
+   QTY PRESET
 ====================== */
 const qtyPreset = document.getElementById("qtyPreset");
 const qtyInput = document.getElementById("qty");
@@ -111,7 +113,7 @@ document.getElementById("saveOrder").onclick = async () => {
 };
 
 /* ======================
-   LOAD + SEARCH (UNCHANGED)
+   LOAD + SEARCH
 ====================== */
 const tbody = document.getElementById("ordersTable");
 const searchInput = document.getElementById("orderSearch");
@@ -125,6 +127,7 @@ onSnapshot(collection(db, "orders"), snap => {
 
 searchInput.oninput = () => {
   const term = searchInput.value.toLowerCase();
+
   renderOrders(
     allOrders.filter(o =>
       o.customer.toLowerCase().includes(term) ||
@@ -136,7 +139,7 @@ searchInput.oninput = () => {
 };
 
 /* ======================
-   RENDER (UNCHANGED)
+   RENDER
 ====================== */
 function renderOrders(list) {
   tbody.innerHTML = "";
@@ -191,7 +194,7 @@ function renderOrders(list) {
 }
 
 /* ======================
-   EDIT + DELETE (UNCHANGED)
+   EDIT + DELETE
 ====================== */
 function attachHandlers() {
   document.querySelectorAll(".edit-btn").forEach(btn => {
