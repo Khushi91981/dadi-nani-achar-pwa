@@ -2,40 +2,32 @@ import { db } from "./firebase.js";
 import {
   collection,
   addDoc,
-  onSnapshot,
   deleteDoc,
-  doc,
-  serverTimestamp
+  onSnapshot,
+  serverTimestamp,
+  doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import { logout } from "./auth.js";
 
-/* ======================
- LOGOUT
-====================== */
+const form = document.getElementById("recipeForm");
+const table = document.getElementById("recipesTable");
+
 document.getElementById("logoutBtn").onclick = async () => {
   await logout();
   location.href = "index.html";
 };
 
-/* ======================
- ADD RECIPE
-====================== */
-const form = document.getElementById("recipeForm");
-
-const recipeTitleInput = document.getElementById("recipeTitle");
-const recipeFileInput = document.getElementById("recipeFile");
-const uploadedByInput = document.getElementById("uploadedBy");
-
 form.onsubmit = async (e) => {
   e.preventDefault();
 
-  const title = recipeTitleInput.value.trim();
-  const file = recipeFileInput.files[0];
-  const uploadedBy = uploadedByInput.value.trim();
+  const title = document.getElementById("title").value.trim();
+  const uploadedBy = document.getElementById("uploadedBy").value.trim();
+  const fileInput = document.getElementById("file");
+  const file = fileInput.files[0];
 
-  if (!title || !file) {
-    alert("Recipe title and file are required");
+  if (!title || !uploadedBy || !file) {
+    alert("All fields required");
     return;
   }
 
@@ -43,66 +35,43 @@ form.onsubmit = async (e) => {
 
   reader.onload = async () => {
     try {
-      const base64 = reader.result.split(",")[1];
-
       const res = await fetch("/.netlify/functions/upload-recipe", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fileName: file.name,
-          fileBase64: base64,
-          message: `Recipe upload: ${title}`
+          filename: file.name,
+          content: reader.result.split(",")[1]
         })
       });
 
       const data = await res.json();
-
-      if (!data.success) {
-        console.error(data);
-        alert("Upload failed");
-        return;
-      }
+      if (!data.url) throw new Error("Upload failed");
 
       await addDoc(collection(db, "recipes"), {
         title,
         fileUrl: data.url,
-        uploadedBy: uploadedBy || "-",
+        uploadedBy,
         createdAt: serverTimestamp()
       });
 
       form.reset();
-      alert("Recipe uploaded successfully ✅");
-
     } catch (err) {
       console.error(err);
-      alert("Something went wrong");
+      alert("Upload failed");
     }
   };
 
   reader.readAsDataURL(file);
 };
 
-/* ======================
- LOAD RECIPES
-====================== */
-const tbody = document.getElementById("recipesTable");
-
 onSnapshot(collection(db, "recipes"), snap => {
-  tbody.innerHTML = "";
-
+  table.innerHTML = "";
   snap.docs.forEach(d => {
     const r = d.data();
-    const date = r.createdAt?.seconds
-      ? new Date(r.createdAt.seconds * 1000).toISOString().split("T")[0]
-      : "-";
-
-    tbody.innerHTML += `
+    table.innerHTML += `
       <tr>
         <td><strong>${r.title}</strong></td>
-        <td>
-          <a href="${r.fileUrl}" target="_blank">Open</a>
-        </td>
-        <td>${date}</td>
+        <td><a href="${r.fileUrl}" target="_blank">Open</a></td>
+        <td>${r.createdAt?.seconds ? new Date(r.createdAt.seconds*1000).toISOString().split("T")[0] : "-"}</td>
         <td>${r.uploadedBy}</td>
         <td>
           <button class="btn-sm delete" data-id="${d.id}">Delete</button>
@@ -111,17 +80,10 @@ onSnapshot(collection(db, "recipes"), snap => {
     `;
   });
 
-  attachDelete();
-});
-
-/* ======================
- DELETE
-====================== */
-function attachDelete() {
   document.querySelectorAll(".delete").forEach(btn => {
     btn.onclick = async () => {
-      if (!confirm("Delete this recipe entry?")) return;
+      if (!confirm("Delete recipe?")) return;
       await deleteDoc(doc(db, "recipes", btn.dataset.id));
     };
   });
-}
+});

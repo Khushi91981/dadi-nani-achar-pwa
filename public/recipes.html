@@ -1,31 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
   <title>Recipes – दादी–नानी अचार</title>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="./src/css/style.css" />
 </head>
-
 <body>
-<div class="app">
 
-  <!-- SIDEBAR -->
+<div class="app">
   <aside class="sidebar">
     <h2>दादी–नानी अचार</h2>
     <nav>
       <a href="dashboard.html">🏠 Dashboard</a>
       <a href="products.html">🧺 Products</a>
       <a href="orders.html">📦 Orders</a>
-      <a href="expenses.html">💸 Expenses</a>
       <a class="active" href="recipes.html">📘 Recipes</a>
     </nav>
   </aside>
 
-  <!-- MAIN -->
   <main class="main">
-
-    <!-- HEADER -->
     <div class="page-header">
       <div>
         <h2>Recipes</h2>
@@ -34,26 +28,18 @@
       <button id="logoutBtn" class="btn-outline">Logout</button>
     </div>
 
-    <!-- ADD RECIPE -->
     <div class="card">
       <h3>Add Recipe</h3>
-
       <form id="recipeForm" class="form-grid">
-        <input id="recipeTitle" placeholder="Recipe Title">
-        <input id="recipeFile" type="file" accept=".pdf,.doc,.docx,image/*">
-        <input id="uploadedBy" placeholder="Uploaded By">
+        <input id="title" placeholder="Recipe Title" required />
+        <input id="uploadedBy" placeholder="Uploaded By" required />
+        <input id="file" type="file" accept=".pdf,.doc,.docx,.jpg,.png" required />
         <button class="btn">Upload Recipe</button>
       </form>
-
-      <small style="color:#777">
-        Files are stored securely & become read-only after upload.
-      </small>
     </div>
 
-    <!-- LIST -->
     <div class="card">
       <h3>Recipe Library</h3>
-
       <table class="data-table">
         <thead>
           <tr>
@@ -67,7 +53,6 @@
         <tbody id="recipesTable"></tbody>
       </table>
     </div>
-
   </main>
 </div>
 

@@ -1,52 +1,41 @@
 import fetch from "node-fetch";
 
 export async function handler(event) {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
-
   try {
-    const { fileName, fileBase64, message } = JSON.parse(event.body);
+    const { filename, content } = JSON.parse(event.body);
 
-    const owner = "Khushi1981";
-    const repo = "dadi-nani-achar-pwa";
-    const path = `public/recipes/${fileName}`;
-    const token = process.env.GITHUB_TOKEN;
-
-    const check = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    const existing = check.ok ? await check.json() : null;
+    const repo = "Khushi91981/dadi-nani-achar-pwa";
+    const path = `public/recipes/${filename}`;
 
     const res = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
+      `https://api.github.com/repos/${repo}/contents/${path}`,
       {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          message,
-          content: fileBase64,
-          sha: existing?.sha
+          message: `Upload recipe ${filename}`,
+          content
         })
       }
     );
 
-    if (!res.ok) throw await res.text();
+    if (!res.ok) throw new Error("GitHub upload failed");
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        success: true,
-        url: `/recipes/${fileName}`
+        url: `/recipes/${filename}`
       })
     };
-
-  } catch (err) {
-    return { statusCode: 500, body: err.toString() };
+  } catch (e) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: e.message
+      })
+    };
   }
 }
