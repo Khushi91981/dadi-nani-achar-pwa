@@ -1,47 +1,91 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
+  <title>Recipes – दादी–नानी अचार</title>
+
   <meta charset="UTF-8" />
-  <title>Recipes</title>
-  <link rel="stylesheet" href="src/css/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="./src/css/style.css" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#7b0000" />
 </head>
+
 <body>
 
-<header class="topbar">
-  <h2>Recipes</h2>
-  <button id="logoutBtn" class="btn-outline">Logout</button>
-</header>
+<div class="app">
 
-<section class="card">
-  <h3>Add Recipe</h3>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2>दादी–नानी अचार</h2>
 
-  <form id="recipeForm">
-    <input id="titleInput" type="text" placeholder="Recipe Title" required />
-    <input id="uploadedByInput" type="text" placeholder="Uploaded By" required />
-    <input id="fileInput" type="file" accept=".pdf,.doc,.docx,.png,.jpg" required />
-    <button class="btn-primary">Upload Recipe</button>
-  </form>
+    <nav>
+      <a href="dashboard.html">🏠 Dashboard</a>
+      <a href="users.html">👤 Users</a>
+      <a href="products.html">🧺 Products</a>
+      <a href="orders.html">📦 Orders</a>
+      <a href="recipes.html" class="active">📘 Recipes</a>
+      <a href="expenses.html">💸 Expenses</a>
+      <a href="reports.html">📊 Reports</a>
+    </nav>
+  </aside>
 
-  <small>Files are stored in <b>/public/recipes/</b></small>
-</section>
+  <!-- MAIN -->
+  <div class="main">
 
-<section class="card">
-  <h3>Recipe Library</h3>
+    <!-- HEADER -->
+    <div class="page-header">
+      <div>
+        <h2>Recipes</h2>
+        <p class="role-text">Read-only recipe document library</p>
+      </div>
+      <button id="logoutBtn" class="btn-outline">Logout</button>
+    </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Title</th>
-        <th>File</th>
-        <th>Added On</th>
-        <th>Added By</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody id="recipesTable"></tbody>
-  </table>
-</section>
+    <!-- ADD RECIPE -->
+    <div class="card">
+      <h3>Add Recipe</h3>
 
-<script type="module" src="src/js/recipes.js"></script>
+      <form id="recipeForm" class="form-grid">
+        <input id="titleInput" placeholder="Recipe Title" required />
+        <input id="uploadedByInput" placeholder="Uploaded By" required />
+        <input id="fileInput" type="file"
+               accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+               required />
+        <button class="btn">Upload Recipe</button>
+      </form>
+
+      <small>Files are stored in <b>/public/recipes/</b></small>
+    </div>
+
+    <!-- LIBRARY -->
+    <div class="card">
+      <h3>Recipe Library</h3>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>File</th>
+            <th>Added On</th>
+            <th>Added By</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="recipesTable"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script type="module" src="./src/js/recipes.js"></script>
+<script type="module" src="./src/js/layout.js"></script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js");
+  }
+</script>
+
 </body>
 </html>
