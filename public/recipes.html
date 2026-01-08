@@ -4,10 +4,7 @@
   <meta charset="UTF-8" />
   <title>Recipes – दादी–नानी अचार</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <link rel="stylesheet" href="./src/css/style.css" />
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#7b0000" />
 </head>
 
 <body>
@@ -18,12 +15,10 @@
     <h2>दादी–नानी अचार</h2>
     <nav>
       <a href="dashboard.html">🏠 Dashboard</a>
-      <a href="users.html">👤 Users</a>
       <a href="products.html">🧺 Products</a>
       <a href="orders.html">📦 Orders</a>
-      <a class="active" href="recipes.html">📘 Recipes</a>
       <a href="expenses.html">💸 Expenses</a>
-      <a href="reports.html">📊 Reports</a>
+      <a class="active" href="recipes.html">📘 Recipes</a>
     </nav>
   </aside>
 
@@ -39,30 +34,30 @@
       <button id="logoutBtn" class="btn-outline">Logout</button>
     </div>
 
-    <!-- ADD RECIPE (METADATA ONLY) -->
+    <!-- ADD RECIPE -->
     <div class="card">
-      <h3>Add Recipe Entry</h3>
+      <h3>Add Recipe</h3>
 
-      <div class="form-grid">
-        <input id="title" placeholder="Recipe Title (e.g. Nimbu Achaar – 1 KG)">
-        <input id="filePath" placeholder="/recipes/nimbu-achaar-1kg.pdf">
-        <input id="uploadedBy" placeholder="Uploaded By (Name)">
-        <button id="saveRecipe" class="btn">Save Recipe</button>
-      </div>
+      <form id="recipeForm" class="form-grid">
+        <input id="recipeTitle" placeholder="Recipe Title">
+        <input id="recipeFile" type="file" accept=".pdf,.doc,.docx,image/*">
+        <input id="uploadedBy" placeholder="Uploaded By">
+        <button class="btn">Upload Recipe</button>
+      </form>
 
-      <p style="margin-top:10px; font-size:13px; color:#6b7280;">
-        Upload files via GitHub → <code>public/recipes/</code>
-      </p>
+      <small style="color:#777">
+        Files are stored securely & become read-only after upload.
+      </small>
     </div>
 
-    <!-- RECIPE LIST -->
+    <!-- LIST -->
     <div class="card">
       <h3>Recipe Library</h3>
 
       <table class="data-table">
         <thead>
           <tr>
-            <th>Recipe Title</th>
+            <th>Title</th>
             <th>File</th>
             <th>Added On</th>
             <th>Added By</th>
@@ -77,14 +72,5 @@
 </div>
 
 <script type="module" src="./src/js/recipes.js"></script>
-<script type="module" src="./src/js/layout.js"></script>
-
-<script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js");
-    });
-  }
-</script>
 </body>
 </html>

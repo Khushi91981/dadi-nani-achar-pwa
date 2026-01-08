@@ -11,7 +11,7 @@ import {
 import { logout } from "./auth.js";
 
 /* ======================
-   LOGOUT
+ LOGOUT
 ====================== */
 document.getElementById("logoutBtn").onclick = async () => {
   await logout();
@@ -19,81 +19,96 @@ document.getElementById("logoutBtn").onclick = async () => {
 };
 
 /* ======================
-   ADD RECIPE (METADATA ONLY)
+ ADD RECIPE
 ====================== */
-document.getElementById("saveRecipe").onclick = async () => {
-  const title = document.getElementById("title").value.trim();
-  const filePath = document.getElementById("filePath").value.trim();
-  const uploadedBy = document.getElementById("uploadedBy").value.trim() || "-";
+const form = document.getElementById("recipeForm");
 
-  if (!title || !filePath) {
-    alert("Title and file path are required");
+form.onsubmit = async (e) => {
+  e.preventDefault();
+
+  const title = recipeTitle.value.trim();
+  const file = recipeFile.files[0];
+  const uploadedBy = uploadedByInput.value.trim();
+
+  if (!title || !file) {
+    alert("Title and file are required");
     return;
   }
 
-  await addDoc(collection(db, "recipes"), {
-    title,
-    filePath,
-    uploadedBy,
-    createdAt: serverTimestamp()
-  });
+  const reader = new FileReader();
 
-  document.querySelectorAll(".form-grid input").forEach(i => i.value = "");
+  reader.onload = async () => {
+    const base64 = reader.result.split(",")[1];
+
+    const res = await fetch("/.netlify/functions/upload-recipe", {
+      method: "POST",
+      body: JSON.stringify({
+        fileName: file.name,
+        fileBase64: base64,
+        message: `Recipe: ${title}`
+      })
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      alert("Upload failed");
+      return;
+    }
+
+    await addDoc(collection(db, "recipes"), {
+      title,
+      fileUrl: data.url,
+      uploadedBy: uploadedBy || "-",
+      createdAt: serverTimestamp()
+    });
+
+    form.reset();
+  };
+
+  reader.readAsDataURL(file);
 };
 
 /* ======================
-   LOAD RECIPES
+ LOAD RECIPES
 ====================== */
 const tbody = document.getElementById("recipesTable");
 
 onSnapshot(collection(db, "recipes"), snap => {
-  const recipes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  renderRecipes(recipes);
-});
-
-/* ======================
-   RENDER TABLE
-====================== */
-function renderRecipes(list) {
   tbody.innerHTML = "";
 
-  list.forEach(r => {
+  snap.docs.forEach(d => {
+    const r = d.data();
+    const date = r.createdAt?.seconds
+      ? new Date(r.createdAt.seconds * 1000).toISOString().split("T")[0]
+      : "-";
+
     tbody.innerHTML += `
-      <tr data-id="${r.id}">
+      <tr>
         <td><strong>${r.title}</strong></td>
         <td>
-          <a href="${r.filePath}" target="_blank" class="btn-sm">View</a>
+          <a href="${r.fileUrl}" target="_blank">Open</a>
         </td>
-        <td>
-          ${
-            r.createdAt?.seconds
-              ? new Date(r.createdAt.seconds * 1000).toISOString().split("T")[0]
-              : "-"
-          }
-        </td>
+        <td>${date}</td>
         <td>${r.uploadedBy}</td>
         <td>
-          <button class="btn-sm delete-btn">Delete</button>
+          <button class="btn-sm delete" data-id="${d.id}">Delete</button>
         </td>
       </tr>
     `;
   });
 
-  attachHandlers();
-}
+  attachDelete();
+});
 
 /* ======================
-   DELETE RECIPE (METADATA ONLY)
+ DELETE
 ====================== */
-function attachHandlers() {
-  document.querySelectorAll(".delete-btn").forEach(btn => {
+function attachDelete() {
+  document.querySelectorAll(".delete").forEach(btn => {
     btn.onclick = async () => {
-      const row = btn.closest("tr");
-      const id = row.dataset.id;
-
-      if (!confirm("Delete this recipe entry? (File remains on server)")) return;
-
-      await deleteDoc(doc(db, "recipes", id));
+      if (!confirm("Delete this recipe entry?")) return;
+      await deleteDoc(doc(db, "recipes", btn.dataset.id));
     };
   });
 }
