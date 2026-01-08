@@ -1,4 +1,4 @@
-import { db } from "./firebase.js";
+import { db } from "/src/js/firebase.js";
 import {
   collection,
   addDoc,
@@ -9,7 +9,7 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-import { logout } from "./auth.js";
+import { logout } from "/src/js/auth.js";
 
 /* ======================
    HELPERS
@@ -40,7 +40,7 @@ onSnapshot(collection(db, "products"), (snap) => {
 
   productSelect.innerHTML = `<option value="">Select Product</option>`;
 
-  snap.docs.forEach((d) => {
+  snap.docs.forEach(d => {
     const p = d.data();
 
     const opt = document.createElement("option");
@@ -54,10 +54,10 @@ onSnapshot(collection(db, "products"), (snap) => {
   productsLoaded = true;
 });
 
-productSelect.addEventListener("change", () => {
+productSelect.onchange = () => {
   const opt = productSelect.selectedOptions[0];
   priceInput.value = opt?.dataset.price || "";
-});
+};
 
 /* ======================
    QTY PRESET (ROBUST)
