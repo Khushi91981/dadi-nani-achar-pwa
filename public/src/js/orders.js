@@ -28,13 +28,60 @@ document.getElementById("logoutBtn").onclick = async () => {
 };
 
 /* ======================
+   PRODUCT DROPDOWN
+====================== */
+const productSelect = document.getElementById("product");
+const priceInput = document.getElementById("price");
+
+let productsMap = {};
+
+// Load products
+onSnapshot(collection(db, "products"), snap => {
+  productSelect.innerHTML = `<option value="">Select Product</option>`;
+  productsMap = {};
+
+  snap.docs.forEach(d => {
+    const p = d.data();
+    productsMap[d.id] = p;
+
+    productSelect.innerHTML += `
+      <option value="${p.name}" data-price="${p.pricePerKg}">
+        ${p.name}
+      </option>
+    `;
+  });
+});
+
+// Auto price fill
+productSelect.onchange = () => {
+  const selected = productSelect.selectedOptions[0];
+  priceInput.value = selected?.dataset.price || "";
+};
+
+/* ======================
+   QTY PRESET LOGIC
+====================== */
+const qtyPreset = document.getElementById("qtyPreset");
+const qtyInput = document.getElementById("qty");
+
+qtyPreset.onchange = () => {
+  if (qtyPreset.value === "custom") {
+    qtyInput.disabled = false;
+    qtyInput.value = "";
+  } else {
+    qtyInput.disabled = true;
+    qtyInput.value = qtyPreset.value || "";
+  }
+};
+
+/* ======================
    ADD ORDER
 ====================== */
 document.getElementById("saveOrder").onclick = async () => {
   const customer = document.getElementById("customer").value.trim();
-  const product = document.getElementById("product").value.trim();
-  const price = Number(document.getElementById("price").value);
-  const qty = Number(document.getElementById("qty").value);
+  const product = productSelect.value;
+  const price = Number(priceInput.value);
+  const qty = Number(qtyInput.value);
   const delivery = Number(document.getElementById("delivery").value || 0);
   const payment = document.getElementById("payment").value;
   const status = document.getElementById("status").value;
@@ -58,10 +105,13 @@ document.getElementById("saveOrder").onclick = async () => {
   });
 
   document.querySelectorAll(".form-grid input").forEach(i => i.value = "");
+  productSelect.value = "";
+  qtyPreset.value = "";
+  qtyInput.disabled = true;
 };
 
 /* ======================
-   LOAD + SEARCH
+   LOAD + SEARCH (UNCHANGED)
 ====================== */
 const tbody = document.getElementById("ordersTable");
 const searchInput = document.getElementById("orderSearch");
@@ -75,19 +125,18 @@ onSnapshot(collection(db, "orders"), snap => {
 
 searchInput.oninput = () => {
   const term = searchInput.value.toLowerCase();
-
-  const filtered = allOrders.filter(o =>
-    o.customer.toLowerCase().includes(term) ||
-    o.product.toLowerCase().includes(term) ||
-    o.payment_status.toLowerCase().includes(term) ||
-    o.order_status.toLowerCase().includes(term)
+  renderOrders(
+    allOrders.filter(o =>
+      o.customer.toLowerCase().includes(term) ||
+      o.product.toLowerCase().includes(term) ||
+      o.payment_status.toLowerCase().includes(term) ||
+      o.order_status.toLowerCase().includes(term)
+    )
   );
-
-  renderOrders(filtered);
 };
 
 /* ======================
-   RENDER
+   RENDER (UNCHANGED)
 ====================== */
 function renderOrders(list) {
   tbody.innerHTML = "";
@@ -142,7 +191,7 @@ function renderOrders(list) {
 }
 
 /* ======================
-   EDIT + DELETE
+   EDIT + DELETE (UNCHANGED)
 ====================== */
 function attachHandlers() {
   document.querySelectorAll(".edit-btn").forEach(btn => {
@@ -189,7 +238,6 @@ function attachHandlers() {
       const id = row.dataset.id;
 
       if (!confirm("Are you sure you want to delete this order?")) return;
-
       await deleteDoc(doc(db, "orders", id));
     };
   });

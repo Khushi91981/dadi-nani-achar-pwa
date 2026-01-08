@@ -38,31 +38,58 @@
       <button id="logoutBtn" class="btn-outline">Logout</button>
     </div>
 
-    <!-- ADD ORDER -->
-    <div class="card">
-      <h3>Add New Order</h3>
+<!-- ADD ORDER -->
+<div class="card">
+  <h3>Add New Order</h3>
 
-      <div class="form-grid">
-        <input id="customer" placeholder="Customer Name">
-        <input id="product" placeholder="Product">
-        <input id="price" type="number" placeholder="Price / KG">
-        <input id="qty" type="number" step="0.01" placeholder="Qty (KG)">
-        <input id="delivery" type="number" placeholder="Delivery Charge">
+  <div class="form-grid">
+    <input id="customer" placeholder="Customer Name">
 
-        <select id="payment">
-          <option>Not Paid Yet</option>
-          <option>Paid</option>
-        </select>
+    <!-- PRODUCT DROPDOWN -->
+    <select id="product">
+      <option value="">Select Product</option>
+    </select>
 
-        <select id="status">
-          <option>New</option>
-          <option>Being Prepared</option>
-          <option>Delivered</option>
-        </select>
+    <!-- AUTO PRICE -->
+    <input id="price" type="number" placeholder="Price / KG" disabled>
 
-        <button id="saveOrder" class="btn">Save Order</button>
-      </div>
-    </div>
+    <!-- QTY PRESET -->
+    <select id="qtyPreset">
+      <option value="">Select Quantity</option>
+      <option value="0.25">250 gm</option>
+      <option value="0.5">500 gm</option>
+      <option value="1">1 KG</option>
+      <option value="2">2 KG</option>
+      <option value="5">5 KG</option>
+      <option value="custom">Custom</option>
+    </select>
+
+    <!-- CUSTOM QTY -->
+    <input
+      id="qty"
+      type="number"
+      step="0.01"
+      placeholder="Custom Qty (KG)"
+      disabled
+    >
+
+    <input id="delivery" type="number" placeholder="Delivery Charge">
+
+    <select id="payment">
+      <option>Not Paid Yet</option>
+      <option>Paid</option>
+    </select>
+
+    <select id="status">
+      <option>New</option>
+      <option>Being Prepared</option>
+      <option>Delivered</option>
+    </select>
+
+    <button id="saveOrder" class="btn">Save Order</button>
+  </div>
+</div>
+
 
     <!-- ORDERS LIST -->
     <div class="card">
