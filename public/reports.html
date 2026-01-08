@@ -1,98 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Reports – दादी–नानी अचार</title>
-<!-- common-head.html -->
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link rel="stylesheet" href="./src/css/style.css" />
-<link rel="manifest" href="/manifest.json" />
-<meta name="theme-color" content="#7b0000" />
-
+  <title>Recipes – दादी–नानी अचार</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="./src/css/style.css" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#7b0000" />
 </head>
+
 <body>
 
 <div class="app">
 
-<aside class="sidebar">
-  <h2>दादी–नानी अचार</h2>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2>दादी–नानी अचार</h2>
+    <nav>
+      <a href="dashboard.html">🏠 Dashboard</a>
+      <a href="users.html">👤 Users</a>
+      <a href="products.html">🧺 Products</a>
+      <a href="orders.html">📦 Orders</a>
+      <a class="active" href="recipes.html">📘 Recipes</a>
+      <a href="expenses.html">💸 Expenses</a>
+      <a href="reports.html">📊 Reports</a>
+    </nav>
+  </aside>
 
-  <nav>
-    <a href="dashboard.html">🏠 Dashboard</a>
-    <a href="users.html" id="usersLink">👤 Users</a>
-    <a href="products.html">🧺 Products</a>
-
-    <a href="orders.html">📦 Orders</a>
-      <a href="recipes.html">📘 Recipes</a>
-
-    <a href="expenses.html">💸 Expenses</a>
-    <a href="reports.html">📊 Reports</a>
-  </nav>
-</aside>
-
-
+  <!-- MAIN -->
   <div class="main">
 
+    <!-- HEADER -->
     <div class="page-header">
       <div>
-        <h2>Reports</h2>
-        <p class="role-text">Orders − Expenses = Profit</p>
+        <h2>Recipes</h2>
+        <p>Read-only recipe document library</p>
       </div>
       <button id="logoutBtn" class="btn-outline">Logout</button>
     </div>
 
-    <!-- FILTER -->
+    <!-- ADD RECIPE -->
     <div class="card">
-      <h3>Filter</h3>
-      <div class="form-grid">
-        <select id="rangeType">
-          <option value="today">Today</option>
-          <option value="month">This Month</option>
-          <option value="custom">Custom</option>
-        </select>
+      <h3>Add Recipe</h3>
 
-        <input type="date" id="fromDate" class="hidden">
-        <input type="date" id="toDate" class="hidden">
+      <form id="recipeForm" class="form-grid">
+        <input id="titleInput" placeholder="Recipe Title" required />
+        <input id="uploadedByInput" placeholder="Uploaded By" required />
+        <input id="fileInput" type="file" accept=".pdf,.doc,.docx,.jpg,.png" required />
 
-        <button class="btn" id="applyFilter">Apply</button>
-      </div>
+        <button class="btn">Upload Recipe</button>
+      </form>
+
+      <small>Files are stored securely via Netlify Functions</small>
     </div>
 
-    <!-- SUMMARY -->
-    <div class="report-grid">
+    <!-- LIBRARY -->
+    <div class="card">
+      <h3>Recipe Library</h3>
 
-  <div class="report-card">
-    <h4>Total Orders</h4>
-    <p id="totalOrders">₹0</p>
-  </div>
-
-  <div class="report-card">
-    <h4>Total Expenses</h4>
-    <p id="totalExpenses">₹0</p>
-  </div>
-
-  <div class="report-card profit">
-    <h4>Net Profit</h4>
-    <p id="netProfit">₹0</p>
-  </div>
-
-</div>
-
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>File</th>
+            <th>Added On</th>
+            <th>Added By</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="recipesTable"></tbody>
+      </table>
+    </div>
 
   </div>
 </div>
 
-<script type="module" src="./src/js/reports.js"></script>
+<script type="module" src="./src/js/recipes.js"></script>
 <script type="module" src="./src/js/layout.js"></script>
-<script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js")
-        .then(() => console.log("PWA Service Worker registered"))
-        .catch(err => console.error("SW error", err));
-    });
-  }
-</script>
-
 </body>
 </html>
