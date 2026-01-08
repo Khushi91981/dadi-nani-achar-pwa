@@ -22,7 +22,9 @@ document.getElementById("logoutBtn").onclick = async () => {
   location.href = "index.html";
 };
 
-/* ---------------- UPLOAD ---------------- */
+/* ======================
+   UPLOAD / REPLACE
+====================== */
 form.onsubmit = async (e) => {
   e.preventDefault();
 
@@ -52,13 +54,16 @@ form.onsubmit = async (e) => {
         })
       });
 
-      const data = await res.json();
+      if (!res.ok) throw new Error("Upload failed");
 
-      if (!res.ok) {
-        throw new Error(data.error || "Upload failed");
-      }
+      await addDoc(collection(db, "recipes"), {
+        title,
+        uploadedBy,
+        filePath: `/recipes/${file.name}`,
+        createdAt: serverTimestamp()
+      });
 
-      alert("Recipe uploaded successfully");
+      alert("Recipe uploaded / replaced");
       form.reset();
 
     } catch (err) {
@@ -70,26 +75,22 @@ form.onsubmit = async (e) => {
   reader.readAsDataURL(file);
 };
 
-/* ---------------- LIST ---------------- */
+/* ======================
+   LIST
+====================== */
 onSnapshot(collection(db, "recipes"), snap => {
   table.innerHTML = "";
 
   snap.docs.forEach(d => {
     const r = d.data();
-
-    const date =
-      r.createdAt?.seconds
-        ? new Date(r.createdAt.seconds * 1000)
-            .toISOString()
-            .split("T")[0]
-        : "-";
+    const date = r.createdAt?.seconds
+      ? new Date(r.createdAt.seconds * 1000).toISOString().split("T")[0]
+      : "-";
 
     table.innerHTML += `
       <tr>
         <td><strong>${r.title}</strong></td>
-        <td>
-          <a href="${r.fileUrl}" target="_blank">Open</a>
-        </td>
+        <td><a href="${r.filePath}" target="_blank">Open</a></td>
         <td>${date}</td>
         <td>${r.uploadedBy}</td>
         <td>
@@ -101,7 +102,7 @@ onSnapshot(collection(db, "recipes"), snap => {
 
   document.querySelectorAll(".delete").forEach(btn => {
     btn.onclick = async () => {
-      if (!confirm("Delete recipe?")) return;
+      if (!confirm("Delete recipe entry? File will remain.")) return;
       await deleteDoc(doc(db, "recipes", btn.dataset.id));
     };
   });
