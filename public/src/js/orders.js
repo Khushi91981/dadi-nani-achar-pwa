@@ -1,4 +1,4 @@
-import { db, auth } from "./firebase.js";
+import { db } from "./firebase.js";
 import {
   collection,
   addDoc,
@@ -8,10 +8,6 @@ import {
   deleteDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-import {
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import { logout } from "./auth.js";
 
@@ -37,28 +33,53 @@ document.getElementById("logoutBtn").onclick = async () => {
 const productSelect = document.getElementById("product");
 const priceInput = document.getElementById("price");
 
+console.log("🟡 Orders.js loaded");
+console.log("🟡 productSelect exists?", !!productSelect);
+
+import { auth } from "./firebase.js";
+import { onAuthStateChanged } from
+  "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
 onAuthStateChanged(auth, (user) => {
-  if (!user) return;
+  console.log("🟡 Auth state changed:", user);
 
-  onSnapshot(collection(db, "products"), (snap) => {
-    productSelect.innerHTML =
-      `<option value="">Select Product</option>`;
+  if (!user) {
+    console.error("🔴 User NOT authenticated");
+    return;
+  }
 
-    snap.docs.forEach((d) => {
-      const p = d.data();
-      productSelect.innerHTML += `
-        <option value="${p.name}" data-price="${p.pricePerKg}">
-          ${p.name}
-        </option>
-      `;
-    });
-  });
+  console.log("🟢 User authenticated, loading products…");
+
+  onSnapshot(
+    collection(db, "products"),
+    (snap) => {
+      console.log("🟢 Products snapshot size:", snap.size);
+
+      productSelect.innerHTML =
+        `<option value="">Select Product</option>`;
+
+      snap.docs.forEach((d) => {
+        const p = d.data();
+        console.log("🟢 Product found:", p);
+
+        productSelect.innerHTML += `
+          <option value="${p.name}" data-price="${p.pricePerKg}">
+            ${p.name}
+          </option>
+        `;
+      });
+    },
+    (error) => {
+      console.error("🔴 Products snapshot error:", error);
+    }
+  );
 });
 
 productSelect.onchange = () => {
   const opt = productSelect.selectedOptions[0];
   priceInput.value = opt?.dataset.price || "";
 };
+
 
 /* ======================
    QTY PRESET
@@ -127,7 +148,6 @@ onSnapshot(collection(db, "orders"), snap => {
 
 searchInput.oninput = () => {
   const term = searchInput.value.toLowerCase();
-
   renderOrders(
     allOrders.filter(o =>
       o.customer.toLowerCase().includes(term) ||
@@ -139,7 +159,7 @@ searchInput.oninput = () => {
 };
 
 /* ======================
-   RENDER
+   RENDER + EDIT + DELETE
 ====================== */
 function renderOrders(list) {
   tbody.innerHTML = "";
@@ -151,20 +171,16 @@ function renderOrders(list) {
       <tr data-id="${o.id}" class="${delivered ? "row-disabled" : ""}">
         <td><strong>${o.customer}</strong></td>
         <td>${o.product}</td>
-
         <td><input class="qty" type="number" value="${o.qty}" disabled></td>
         <td><input class="price" type="number" value="${o.price}" disabled></td>
         <td><input class="delivery" type="number" value="${o.delivery}" disabled></td>
-
         <td><strong>₹${o.total}</strong></td>
-
         <td>
           <select class="payment" disabled>
             <option ${o.payment_status==="Not Paid Yet"?"selected":""}>Not Paid Yet</option>
             <option ${o.payment_status==="Paid"?"selected":""}>Paid</option>
           </select>
         </td>
-
         <td>
           <select class="status" disabled>
             <option ${o.order_status==="New"?"selected":""}>New</option>
@@ -172,10 +188,8 @@ function renderOrders(list) {
             <option ${o.order_status==="Delivered"?"selected":""}>Delivered</option>
           </select>
         </td>
-
         <td>${formatDate(o.created_at)}</td>
         <td>${formatDate(o.delivery_date)}</td>
-
         <td>
           ${
             delivered
@@ -193,9 +207,6 @@ function renderOrders(list) {
   attachHandlers();
 }
 
-/* ======================
-   EDIT + DELETE
-====================== */
 function attachHandlers() {
   document.querySelectorAll(".edit-btn").forEach(btn => {
     btn.onclick = async () => {
@@ -239,8 +250,7 @@ function attachHandlers() {
     btn.onclick = async () => {
       const row = btn.closest("tr");
       const id = row.dataset.id;
-
-      if (!confirm("Are you sure you want to delete this order?")) return;
+      if (!confirm("Delete this order?")) return;
       await deleteDoc(doc(db, "orders", id));
     };
   });
