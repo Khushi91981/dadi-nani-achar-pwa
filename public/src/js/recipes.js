@@ -17,14 +17,13 @@ const titleInput = document.getElementById("titleInput");
 const uploadedByInput = document.getElementById("uploadedByInput");
 const fileInput = document.getElementById("fileInput");
 
+/* LOGOUT */
 document.getElementById("logoutBtn").onclick = async () => {
   await logout();
   location.href = "index.html";
 };
 
-/* ======================
-   UPLOAD / REPLACE
-====================== */
+/* UPLOAD / REPLACE */
 form.onsubmit = async (e) => {
   e.preventDefault();
 
@@ -54,17 +53,11 @@ form.onsubmit = async (e) => {
         })
       });
 
-      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
 
-      await addDoc(collection(db, "recipes"), {
-        title,
-        uploadedBy,
-        fileUrl: `/recipes/${file.name}`,
-        createdAt: serverTimestamp()
-      });
-
-      alert("Recipe uploaded / replaced");
       form.reset();
+      alert("Recipe uploaded");
 
     } catch (err) {
       console.error(err);
@@ -75,9 +68,7 @@ form.onsubmit = async (e) => {
   reader.readAsDataURL(file);
 };
 
-/* ======================
-   LIST
-====================== */
+/* LOAD RECIPES */
 onSnapshot(collection(db, "recipes"), snap => {
   table.innerHTML = "";
 
@@ -88,7 +79,7 @@ onSnapshot(collection(db, "recipes"), snap => {
       : "-";
 
     table.innerHTML += `
-      <tr>
+      <tr data-file="${r.fileUrl}">
         <td><strong>${r.title}</strong></td>
         <td><a href="${r.fileUrl}" target="_blank">Open</a></td>
         <td>${date}</td>
@@ -100,10 +91,31 @@ onSnapshot(collection(db, "recipes"), snap => {
     `;
   });
 
+  attachDelete();
+});
+
+/* DELETE (GitHub + Firestore) */
+function attachDelete() {
   document.querySelectorAll(".delete").forEach(btn => {
     btn.onclick = async () => {
-      if (!confirm("Delete recipe entry? File will remain.")) return;
-      await deleteDoc(doc(db, "recipes", btn.dataset.id));
+      if (!confirm("Delete recipe permanently?")) return;
+
+      const row = btn.closest("tr");
+      const filePath = row.dataset.file;
+
+      try {
+        await fetch("/.netlify/functions/delete-recipe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ filePath })
+        });
+
+        await deleteDoc(doc(db, "recipes", btn.dataset.id));
+
+      } catch (e) {
+        console.error(e);
+        alert("Delete failed");
+      }
     };
   });
-});
+}

@@ -1,10 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <title>Recipes – दादी–नानी अचार</title>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <link rel="stylesheet" href="./src/css/style.css" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#7b0000" />
 </head>
 
 <body>
@@ -13,6 +17,7 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <h2>दादी–नानी अचार</h2>
+
     <nav>
       <a href="dashboard.html">🏠 Dashboard</a>
       <a href="users.html">👤 Users</a>
@@ -27,6 +32,7 @@
   <!-- MAIN -->
   <main class="main">
 
+    <!-- HEADER -->
     <div class="page-header">
       <div>
         <h2>Recipes</h2>
@@ -35,21 +41,21 @@
       <button id="logoutBtn" class="btn-outline">Logout</button>
     </div>
 
-    <!-- ADD -->
+    <!-- ADD RECIPE -->
     <div class="card">
       <h3>Add / Replace Recipe</h3>
 
       <form id="recipeForm" class="form-grid">
-        <input id="titleInput" placeholder="Recipe Title" required />
-        <input id="uploadedByInput" placeholder="Uploaded By" required />
-        <input id="fileInput" type="file" accept=".pdf,.doc,.docx,.png,.jpg" required />
+        <input id="titleInput" placeholder="Recipe Title">
+        <input id="uploadedByInput" placeholder="Uploaded By">
+        <input id="fileInput" type="file" accept=".pdf,.doc,.docx,.png,.jpg">
         <button class="btn">Upload Recipe</button>
       </form>
 
-      <small>⚠ Uploading a file with the same name will replace the existing recipe.</small>
+      <small>Files are stored in <b>/public/recipes/</b></small>
     </div>
 
-    <!-- LIST -->
+    <!-- RECIPE LIST -->
     <div class="card">
       <h3>Recipe Library</h3>
 
@@ -71,5 +77,15 @@
 </div>
 
 <script type="module" src="./src/js/recipes.js"></script>
+<script type="module" src="./src/js/layout.js"></script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js");
+  });
+}
+</script>
+
 </body>
 </html>
