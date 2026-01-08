@@ -59,7 +59,7 @@ form.onsubmit = async (e) => {
       await addDoc(collection(db, "recipes"), {
         title,
         uploadedBy,
-        filePath: `/recipes/${file.name}`,
+        fileUrl: `/recipes/${file.name}`,
         createdAt: serverTimestamp()
       });
 
@@ -90,7 +90,7 @@ onSnapshot(collection(db, "recipes"), snap => {
     table.innerHTML += `
       <tr>
         <td><strong>${r.title}</strong></td>
-        <td><a href="${r.filePath}" target="_blank">Open</a></td>
+        <td><a href="${r.fileUrl}" target="_blank">Open</a></td>
         <td>${date}</td>
         <td>${r.uploadedBy}</td>
         <td>
